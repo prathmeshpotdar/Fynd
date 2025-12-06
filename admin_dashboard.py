@@ -16,7 +16,6 @@ df = load_submissions()
 if df.empty:
     st.info("No submissions yet.")
 else:
-    # Summary metrics
     col1, col2, col3 = st.columns(3)
     col1.metric("Total Feedback", len(df))
     col2.metric("Average Rating", f"{df['rating'].mean():.2f}")
