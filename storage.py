@@ -1,17 +1,23 @@
 import os
 import json
+import base64
 import pandas as pd
 from datetime import datetime
 import gspread
 from google.oauth2.service_account import Credentials
 
-google_key_raw = os.getenv("GOOGLE_SHEETS_KEY")
+# Read Base64-encoded JSON key
+key_b64 = os.getenv("GOOGLE_SHEETS_KEY_B64")
 
-if not google_key_raw:
-    raise ValueError("GOOGLE_SHEETS_KEY not found in Streamlit Secrets")
+if not key_b64:
+    raise ValueError("GOOGLE_SHEETS_KEY_B64 not found in Streamlit Secrets")
 
-# Load JSON directly
-service_account_info = json.loads(google_key_raw)
+try:
+    key_bytes = base64.b64decode(key_b64)
+    key_json = key_bytes.decode("utf-8")
+    service_account_info = json.loads(key_json)
+except Exception as e:
+    raise ValueError(f"Failed to decode service account key: {e}")
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 creds = Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
