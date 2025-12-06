@@ -1,4 +1,5 @@
 # storage.py — Google Sheets Backend
+print("RAW GOOGLE KEY:", google_key_raw)
 
 import os
 import json
@@ -73,3 +74,4 @@ def load_submissions():
 
     df = pd.DataFrame(records)
     return df
+
