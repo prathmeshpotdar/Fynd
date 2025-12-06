@@ -11,11 +11,29 @@ st.set_page_config(
 st.title("📊 Fynd AI Feedback – Admin Dashboard")
 st.write("Monitor real-time user feedback, AI summaries, and recommended actions.")
 
+# -------------------------------------------------
+# Load and clean data
+# -------------------------------------------------
 df = load_submissions()
 
+EXPECTED = ["timestamp", "rating", "review", "ai_response", "ai_summary", "ai_actions"]
+
+# Keep only expected columns
+df = df[[col for col in EXPECTED if col in df.columns]]
+
+# Convert rating to numeric safely
+df["rating"] = pd.to_numeric(df["rating"], errors="coerce")
+
+# Remove rows where rating is missing or invalid
+df = df.dropna(subset=["rating"])
+
+# -------------------------------------------------
+# Render dashboard
+# -------------------------------------------------
 if df.empty:
     st.info("No submissions yet.")
 else:
+    # Summary metrics
     col1, col2, col3 = st.columns(3)
     col1.metric("Total Feedback", len(df))
     col2.metric("Average Rating", f"{df['rating'].mean():.2f}")
