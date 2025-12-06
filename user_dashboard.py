@@ -23,20 +23,19 @@ if submitted:
         with st.spinner("Generating AI response..."):
             user_response, summary, actions = generate_feedback(rating, review)
 
-            # Store in Google Sheets
             append_submission(
-                rating=rating,
-                review=review.strip(),
-                ai_response=user_response,
-                ai_summary=summary,
-                ai_actions=actions
+                rating,
+                review.strip(),
+                user_response,
+                summary,
+                actions
             )
 
         st.success("Your feedback has been submitted!")
         st.markdown("### 💬 AI Response")
         st.write(user_response)
 
-        with st.expander("Internal AI Summary & Actions (Preview)"):
+        with st.expander("Internal AI Summary & Actions"):
             st.markdown(f"**Summary:** {summary}")
             st.markdown(f"**Actions:** {actions}")
 
