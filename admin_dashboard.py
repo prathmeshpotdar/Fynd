@@ -11,29 +11,36 @@ st.set_page_config(
 st.title("📊 Fynd AI Feedback – Admin Dashboard")
 st.write("Monitor real-time user feedback, AI summaries, and recommended actions.")
 
-# -------------------------------------------------
-# Load and clean data
-# -------------------------------------------------
+# ------------------------------------------
+# Load data
+# ------------------------------------------
 df = load_submissions()
 
+# Clean column names: strip spaces, lowercase
+df.columns = df.columns.str.strip().str.lower()
+
+# Expected normalized columns
 EXPECTED = ["timestamp", "rating", "review", "ai_response", "ai_summary", "ai_actions"]
 
-# Keep only expected columns
+# Only keep known columns
 df = df[[col for col in EXPECTED if col in df.columns]]
 
-# Convert rating to numeric safely
-df["rating"] = pd.to_numeric(df["rating"], errors="coerce")
+if "rating" not in df.columns:
+    st.error("❌ ERROR: Your Google Sheet does not contain a column named 'rating'.")
+    st.write("Here are the columns detected in your sheet:")
+    st.write(list(df.columns))
+    st.stop()
 
-# Remove rows where rating is missing or invalid
+# Convert rating safely
+df["rating"] = pd.to_numeric(df["rating"], errors="coerce")
 df = df.dropna(subset=["rating"])
 
-# -------------------------------------------------
-# Render dashboard
-# -------------------------------------------------
+# ------------------------------------------
+# Dashboard rendering
+# ------------------------------------------
 if df.empty:
-    st.info("No submissions yet.")
+    st.info("No valid submissions yet.")
 else:
-    # Summary metrics
     col1, col2, col3 = st.columns(3)
     col1.metric("Total Feedback", len(df))
     col2.metric("Average Rating", f"{df['rating'].mean():.2f}")
