@@ -3,18 +3,18 @@ from llm_client import generate_feedback
 from storage import append_submission
 
 st.set_page_config(
-    page_title="Fynd Feedback Portal",
+    page_title="Fynd AI Feedback – User Portal",
     page_icon="⭐",
     layout="centered"
 )
 
 st.title("⭐ Fynd AI Feedback – User Portal")
-st.write("Share your rating and review – our AI assistant will respond instantly.")
+st.write("Share your rating and review — our AI assistant will respond instantly.")
 
 with st.form("feedback_form"):
-    rating = st.slider("How would you rate your experience?", min_value=1, max_value=5, value=5)
-    review = st.text_area("Write a short review", height=120, placeholder="Tell us what you liked or what could be improved...")
-    submitted = st.form_submit_button("Submit Feedback")
+    rating = st.slider("Your rating:", 1, 5, 5)
+    review = st.text_area("Write a short review:", height=120)
+    submitted = st.form_submit_button("Submit Review")
 
 if submitted:
     if not review.strip():
@@ -23,22 +23,21 @@ if submitted:
         with st.spinner("Generating AI response..."):
             user_response, summary, actions = generate_feedback(rating, review)
 
-            # Store in shared CSV
+            # Store in Google Sheets
             append_submission(
                 rating=rating,
                 review=review.strip(),
                 ai_response=user_response,
                 ai_summary=summary,
-                ai_actions=actions,
+                ai_actions=actions
             )
 
-        st.success("Thank you for your feedback! Here's our response:")
+        st.success("Your feedback has been submitted!")
         st.markdown("### 💬 AI Response")
         st.write(user_response)
 
-        with st.expander("What our system understood (internal preview)", expanded=False):
+        with st.expander("Internal AI Summary & Actions (Preview)"):
             st.markdown(f"**Summary:** {summary}")
-            st.markdown(f"**Recommended actions:** {actions}")
+            st.markdown(f"**Actions:** {actions}")
 
-st.markdown("---")
-st.caption("Powered by Groq Llama-3.1 and built for the Fynd AI Intern assessment.")
+st.caption("Powered by Groq Llama 3.3 • Stored securely in Google Sheets")
