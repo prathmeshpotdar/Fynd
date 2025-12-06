@@ -13,8 +13,7 @@ if not key_b64:
     raise ValueError("GOOGLE_SHEETS_KEY_B64 not found in Streamlit Secrets")
 
 try:
-    key_bytes = base64.b64decode(key_b64)
-    key_json = key_bytes.decode("utf-8")
+    key_json = base64.b64decode(key_b64).decode("utf-8")
     service_account_info = json.loads(key_json)
 except Exception as e:
     raise ValueError(f"Failed to decode service account key: {e}")
@@ -26,3 +25,18 @@ client = gspread.authorize(creds)
 
 SHEET_ID = os.getenv("GOOGLE_SHEET_ID")
 sheet = client.open_by_key(SHEET_ID).sheet1
+
+
+def append_submission(rating, review, ai_response, ai_summary, ai_actions):
+    timestamp = datetime.utcnow().isoformat()
+    row = [timestamp, rating, review, ai_response, ai_summary, ai_actions]
+    sheet.append_row(row)
+
+
+def load_submissions():
+    records = sheet.get_all_records()
+    if not records:
+        return pd.DataFrame(
+            columns=["timestamp", "rating", "review", "ai_response", "ai_summary", "ai_actions"]
+        )
+    return pd.DataFrame(records)
